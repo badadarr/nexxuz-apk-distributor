@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexxuz APK Distributor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Space Grotesk", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      :root {
+        --bg: #070d1a;
+        --surface: #0d1929;
+        --surface2: #111f33;
+        --border: #1e3354;
+        --accent: #00d4ff;
+        --accent2: #00ff9d;
+        --danger: #ff4d6d;
+        --text: #e2eaf5;
+        --muted: #4a6080;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Space Grotesk", sans-serif;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      /* Subtle grid background */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .wrap {
+        position: relative;
+        z-index: 1;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      .card-header-core {
+        background: linear-gradient(
+          135deg,
+          rgba(0, 255, 157, 0.08),
+          rgba(0, 255, 157, 0.02)
+        );
+        border-bottom: 1px solid rgba(0, 255, 157, 0.12);
+      }
+      .card-header-member {
+        background: linear-gradient(
+          135deg,
+          rgba(0, 212, 255, 0.08),
+          rgba(0, 212, 255, 0.02)
+        );
+        border-bottom: 1px solid rgba(0, 212, 255, 0.12);
+      }
+
+      .apk-row {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+      .apk-row:hover {
+        border-color: rgba(0, 212, 255, 0.3);
+      }
+      .apk-row.selected {
+        border-color: rgba(0, 212, 255, 0.5);
+        background: rgba(0, 212, 255, 0.04);
+      }
+
+      .badge-core {
+        color: var(--accent2);
+        background: rgba(0, 255, 157, 0.1);
+        border: 1px solid rgba(0, 255, 157, 0.2);
+      }
+      .badge-member {
+        color: var(--accent);
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+      }
+
+      .btn-core {
+        background: rgba(0, 255, 157, 0.15);
+        border: 1px solid rgba(0, 255, 157, 0.3);
+        color: var(--accent2);
+        transition: all 0.15s;
+      }
+      .btn-core:hover {
+        background: rgba(0, 255, 157, 0.25);
+      }
+
+      .btn-member {
+        background: rgba(0, 212, 255, 0.15);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        color: var(--accent);
+        transition: all 0.15s;
+      }
+      .btn-member:hover {
+        background: rgba(0, 212, 255, 0.25);
+      }
+
+      .btn-single {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        transition: all 0.15s;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .btn-single:hover {
+        border-color: rgba(0, 212, 255, 0.3);
+        color: var(--accent);
+        background: rgba(0, 212, 255, 0.05);
+      }
+
+      /* Custom checkbox */
+      input[type="checkbox"] {
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        background: var(--surface);
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all 0.1s;
+        position: relative;
+      }
+      input[type="checkbox"]:checked {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      input[type="checkbox"]:checked::after {
+        content: "";
+        position: absolute;
+        left: 5px;
+        top: 2px;
+        width: 5px;
+        height: 9px;
+        border: 2px solid #000;
+        border-top: none;
+        border-left: none;
+        transform: rotate(45deg);
+      }
+
+      /* Progress bar */
+      .progress-bar {
+        height: 3px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent2), var(--accent));
+        border-radius: 2px;
+        transition: width 0.3s ease;
+      }
+
+      /* Toast notification */
+      #toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-size: 13px;
+        color: var(--text);
+        z-index: 9999;
+        transform: translateY(80px);
+        opacity: 0;
+        transition: all 0.25s ease;
+        max-width: 320px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      }
+      #toast.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      #toast.success {
+        border-color: rgba(0, 255, 157, 0.4);
+      }
+      #toast.error {
+        border-color: rgba(255, 77, 109, 0.4);
+      }
+      #toast.info {
+        border-color: rgba(0, 212, 255, 0.4);
+      }
+
+      /* Skeleton loader */
+      .skel {
+        background: linear-gradient(
+          90deg,
+          var(--surface2) 25%,
+          var(--border) 50%,
+          var(--surface2) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+        border-radius: 8px;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body class="p-4 sm:p-6">
+    <div class="wrap max-w-2xl mx-auto space-y-5">
+      <!-- Header -->
+      <header class="text-center py-8">
+        <div
+          style="
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 12px;
+            color: var(--accent);
+            margin-bottom: 16px;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+          "
+        >
+          <span
+            style="
+              width: 6px;
+              height: 6px;
+              background: var(--accent2);
+              border-radius: 50%;
+              animation: pulse 2s infinite;
+              display: inline-block;
+            "
+          ></span>
+          SERVER AKTIF
+        </div>
+        <style>
+          @keyframes pulse {
+            0%,
+            100% {
+              opacity: 1;
+            }
+            50% {
+              opacity: 0.4;
+            }
+          }
+        </style>
+        <h1
+          style="
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin: 0 0 8px;
+          "
+        >
+          Nexxuz APK Distributor
+        </h1>
+        <p style="color: var(--muted); font-size: 14px; margin: 0">
+          Download & install APK sesuai role device Anda
+        </p>
+
+        <!-- Stats bar -->
+        <div
+          id="stats-bar"
+          style="
+            display: none;
+            margin-top: 16px;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+          "
+        >
+          <div
+            style="
+              background: var(--surface);
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              padding: 6px 14px;
+              font-size: 12px;
+            "
+          >
+            <span style="color: var(--muted)">Total APK</span>
+            <span
+              id="stat-total"
+              style="color: var(--text); font-weight: 600; margin-left: 6px"
+              >–</span
+            >
+          </div>
+          <div
+            style="
+              background: var(--surface);
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              padding: 6px 14px;
+              font-size: 12px;
+            "
+          >
+            <span style="color: var(--muted)">Core</span>
+            <span
+              id="stat-core"
+              style="color: var(--accent2); font-weight: 600; margin-left: 6px"
+              >–</span
+            >
+          </div>
+          <div
+            style="
+              background: var(--surface);
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              padding: 6px 14px;
+              font-size: 12px;
+            "
+          >
+            <span style="color: var(--muted)">Member</span>
+            <span
+              id="stat-member"
+              style="color: var(--accent); font-weight: 600; margin-left: 6px"
+              >–</span
+            >
+          </div>
+        </div>
+      </header>
+
+      <!-- Loading Skeleton -->
+      <div id="loading" class="space-y-4">
+        <div class="card p-5 space-y-3">
+          <div class="skel h-5 w-32"></div>
+          <div class="skel h-14 w-full"></div>
+          <div class="skel h-14 w-full"></div>
+        </div>
+        <div class="card p-5 space-y-3">
+          <div class="skel h-5 w-28"></div>
+          <div class="skel h-14 w-full"></div>
+          <div class="skel h-14 w-full"></div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div id="content" class="space-y-5 hidden">
+        <!-- Core Package -->
+        <section class="card">
+          <div
+            class="card-header-core px-5 py-4 flex items-center justify-between"
+          >
+            <div>
+              <h2
+                style="
+                  font-size: 16px;
+                  font-weight: 600;
+                  color: var(--accent2);
+                  margin: 0;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                "
+              >
+                <i data-lucide="box" style="width: 16px; height: 16px"></i>
+                Paket Core
+              </h2>
+              <p
+                style="
+                  font-size: 11px;
+                  color: rgba(0, 255, 157, 0.5);
+                  margin: 3px 0 0;
+                "
+              >
+                2 Device Utama
+              </p>
+            </div>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 8px;
+              "
+            >
+              <span
+                class="badge-core"
+                style="
+                  font-size: 11px;
+                  font-weight: 700;
+                  padding: 3px 10px;
+                  border-radius: 100px;
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                "
+                id="core-count"
+                >0 APK</span
+              >
+              <button
+                onclick="downloadSelected('core-list')"
+                class="btn-core"
+                style="
+                  font-size: 12px;
+                  font-weight: 600;
+                  padding: 6px 14px;
+                  border-radius: 8px;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  gap: 5px;
+                "
+              >
+                <i
+                  data-lucide="download-cloud"
+                  style="width: 13px; height: 13px"
+                ></i>
+                Download Terpilih
+              </button>
+            </div>
+          </div>
+          <!-- Select All -->
+          <div
+            style="
+              padding: 10px 20px;
+              border-bottom: 1px solid var(--border);
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <input
+              type="checkbox"
+              id="core-select-all"
+              onchange="toggleSelectAll('core-list', this.checked)"
+            />
+            <label
+              for="core-select-all"
+              style="
+                font-size: 13px;
+                color: var(--muted);
+                cursor: pointer;
+                font-weight: 500;
+              "
+              >Pilih Semua</label
+            >
+            <span
+              id="core-selected-count"
+              style="
+                font-size: 11px;
+                color: var(--muted);
+                margin-left: auto;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+              "
+            ></span>
+          </div>
+          <div id="core-list" class="p-4 space-y-2"></div>
+        </section>
+
+        <!-- Member Package -->
+        <section class="card">
+          <div
+            class="card-header-member px-5 py-4 flex items-center justify-between"
+          >
+            <div>
+              <h2
+                style="
+                  font-size: 16px;
+                  font-weight: 600;
+                  color: var(--accent);
+                  margin: 0;
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                "
+              >
+                <i data-lucide="users" style="width: 16px; height: 16px"></i>
+                Paket Member
+              </h2>
+              <p
+                style="
+                  font-size: 11px;
+                  color: rgba(0, 212, 255, 0.5);
+                  margin: 3px 0 0;
+                "
+              >
+                11 Device Anggota
+              </p>
+            </div>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 8px;
+              "
+            >
+              <span
+                class="badge-member"
+                style="
+                  font-size: 11px;
+                  font-weight: 700;
+                  padding: 3px 10px;
+                  border-radius: 100px;
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                "
+                id="member-count"
+                >0 APK</span
+              >
+              <button
+                onclick="downloadSelected('member-list')"
+                class="btn-member"
+                style="
+                  font-size: 12px;
+                  font-weight: 600;
+                  padding: 6px 14px;
+                  border-radius: 8px;
+                  cursor: pointer;
+                  display: flex;
+                  align-items: center;
+                  gap: 5px;
+                "
+              >
+                <i
+                  data-lucide="download-cloud"
+                  style="width: 13px; height: 13px"
+                ></i>
+                Download Terpilih
+              </button>
+            </div>
+          </div>
+          <!-- Select All -->
+          <div
+            style="
+              padding: 10px 20px;
+              border-bottom: 1px solid var(--border);
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            "
+          >
+            <input
+              type="checkbox"
+              id="member-select-all"
+              onchange="toggleSelectAll('member-list', this.checked)"
+            />
+            <label
+              for="member-select-all"
+              style="
+                font-size: 13px;
+                color: var(--muted);
+                cursor: pointer;
+                font-weight: 500;
+              "
+              >Pilih Semua</label
+            >
+            <span
+              id="member-selected-count"
+              style="
+                font-size: 11px;
+                color: var(--muted);
+                margin-left: auto;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+              "
+            ></span>
+          </div>
+          <div id="member-list" class="p-4 space-y-2"></div>
+        </section>
+
+        <!-- Error State -->
+        <div
+          id="error-state"
+          class="hidden card p-8 text-center"
+          style="border-color: rgba(255, 77, 109, 0.2)"
+        >
+          <i
+            data-lucide="wifi-off"
+            style="
+              width: 40px;
+              height: 40px;
+              color: var(--danger);
+              margin: 0 auto 12px;
+              display: block;
+            "
+          ></i>
+          <p style="color: var(--danger); font-weight: 600; margin: 0 0 4px">
+            Gagal memuat daftar APK
+          </p>
+          <p style="color: var(--muted); font-size: 13px; margin: 0 0 16px">
+            Pastikan server berjalan dengan benar.
+          </p>
+          <button
+            onclick="fetchApks()"
+            style="
+              background: rgba(255, 77, 109, 0.1);
+              border: 1px solid rgba(255, 77, 109, 0.3);
+              color: var(--danger);
+              padding: 8px 20px;
+              border-radius: 8px;
+              font-size: 13px;
+              cursor: pointer;
+            "
+          >
+            Coba Lagi
+          </button>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden card p-8 text-center">
+          <i
+            data-lucide="folder-open"
+            style="
+              width: 40px;
+              height: 40px;
+              color: var(--muted);
+              margin: 0 auto 12px;
+              display: block;
+            "
+          ></i>
+          <p style="color: var(--text); font-weight: 600; margin: 0 0 6px">
+            Belum ada file APK
+          </p>
+          <p
+            style="
+              color: var(--muted);
+              font-size: 13px;
+              margin: 0;
+              line-height: 1.6;
+            "
+          >
+            Tambahkan file
+            <code
+              style="
+                background: rgba(0, 212, 255, 0.1);
+                color: var(--accent);
+                padding: 2px 6px;
+                border-radius: 4px;
+              "
+              >.apk</code
+            >
+            ke folder
+            <code
+              style="
+                background: rgba(0, 255, 157, 0.1);
+                color: var(--accent2);
+                padding: 2px 6px;
+                border-radius: 4px;
+              "
+              >public/Core</code
+            >
+            atau
+            <code
+              style="
+                background: rgba(0, 212, 255, 0.1);
+                color: var(--accent);
+                padding: 2px 6px;
+                border-radius: 4px;
+              "
+              >public/Member</code
+            >
+          </p>
+        </div>
+      </div>
+
+      <!-- Download Progress Modal -->
+      <div
+        id="progress-modal"
+        style="
+          display: none;
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.7);
+          z-index: 1000;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+        "
+      >
+        <div class="card" style="width: 100%; max-width: 380px; padding: 24px">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 16px;
+            "
+          >
+            <i
+              data-lucide="download"
+              style="width: 18px; height: 18px; color: var(--accent)"
+            ></i>
+            <span style="font-size: 15px; font-weight: 600">Mengunduh APK</span>
+          </div>
+          <div
+            id="progress-text"
+            style="
+              font-size: 13px;
+              color: var(--muted);
+              margin-bottom: 10px;
+              font-family: &quot;JetBrains Mono&quot;, monospace;
+            "
+          ></div>
+          <div class="progress-bar">
+            <div
+              id="progress-fill"
+              class="progress-fill"
+              style="width: 0%"
+            ></div>
+          </div>
+          <div
+            id="progress-detail"
+            style="
+              font-size: 11px;
+              color: var(--muted);
+              margin-top: 8px;
+              text-align: right;
+              font-family: &quot;JetBrains Mono&quot;, monospace;
+            "
+          ></div>
+        </div>
+      </div>
+
+      <!-- Toast -->
+      <div id="toast"></div>
+
+      <footer
+        style="
+          text-align: center;
+          color: var(--muted);
+          font-size: 11px;
+          padding: 24px 0;
+          font-family: &quot;JetBrains Mono&quot;, monospace;
+        "
+      >
+        Nexxuz APK Distributor &copy; 2026 — <span id="footer-stats"></span>
+      </footer>
+    </div>
+
+    <!-- APK Item Template -->
+    <template id="apk-template">
+      <div
+        class="apk-row"
+        style="
+          padding: 12px 14px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        "
+      >
+        <input type="checkbox" class="apk-checkbox" />
+        <div
+          style="
+            background: rgba(0, 212, 255, 0.06);
+            border: 1px solid rgba(0, 212, 255, 0.12);
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+          "
+        >
+          <i
+            data-lucide="package"
+            style="width: 16px; height: 16px; color: var(--accent)"
+          ></i>
+        </div>
+        <div style="flex: 1; min-width: 0">
+          <div
+            class="apk-name"
+            style="
+              font-size: 14px;
+              font-weight: 500;
+              color: var(--text);
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            "
+          ></div>
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              margin-top: 2px;
+            "
+          >
+            <span
+              class="apk-size"
+              style="
+                font-size: 11px;
+                color: var(--muted);
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+              "
+            ></span>
+            <span
+              class="apk-checksum"
+              style="
+                font-size: 10px;
+                color: var(--muted);
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+              "
+            ></span>
+          </div>
+        </div>
+        <a
+          href="#"
+          download
+          class="download-link btn-single"
+          style="
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          "
+        >
+          <i
+            data-lucide="arrow-down-to-line"
+            style="width: 12px; height: 12px"
+          ></i>
+          Unduh
+        </a>
+      </div>
+    </template>
+
+    <script>
+      lucide.createIcons();
+
+      // ── Utilities ──────────────────────────────────────────────────────────────
+      const formatName = (n) => n.replace(/\.apk$/i, "");
+
+      let toastTimer;
+      const showToast = (msg, type = "info") => {
+        const el = document.getElementById("toast");
+        el.textContent = msg;
+        el.className = `show ${type}`;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => (el.className = ""), 3000);
+      };
+
+      // ── Select All ─────────────────────────────────────────────────────────────
+      const toggleSelectAll = (containerId, checked) => {
+        const container = document.getElementById(containerId);
+        container
+          .querySelectorAll(".apk-checkbox")
+          .forEach((cb) => (cb.checked = checked));
+        updateSelectedCount(containerId);
+      };
+
+      const updateSelectedCount = (containerId) => {
+        const container = document.getElementById(containerId);
+        const total = container.querySelectorAll(".apk-checkbox").length;
+        const selected = container.querySelectorAll(
+          ".apk-checkbox:checked",
+        ).length;
+        const isCore = containerId === "core-list";
+        const countEl = document.getElementById(
+          isCore ? "core-selected-count" : "member-selected-count",
+        );
+        const allEl = document.getElementById(
+          isCore ? "core-select-all" : "member-select-all",
+        );
+        countEl.textContent =
+          selected > 0 ? `${selected}/${total} dipilih` : "";
+        allEl.checked = selected === total && total > 0;
+        allEl.indeterminate = selected > 0 && selected < total;
+      };
+
+      // ── Download (parallel with progress) ─────────────────────────────────────
+      const downloadSelected = (containerId) => {
+        const container = document.getElementById(containerId);
+        const checked = [
+          ...container.querySelectorAll(".apk-checkbox:checked"),
+        ];
+
+        if (checked.length === 0) {
+          showToast("Pilih minimal satu APK terlebih dahulu.", "error");
+          return;
+        }
+
+        // Show progress modal
+        const modal = document.getElementById("progress-modal");
+        modal.style.display = "flex";
+        lucide.createIcons(); // icons in modal
+
+        let done = 0;
+        const total = checked.length;
+        const updateProgress = () => {
+          const pct = Math.round((done / total) * 100);
+          document.getElementById("progress-fill").style.width = `${pct}%`;
+          document.getElementById("progress-text").textContent =
+            `Memulai unduhan ${done + 1} dari ${total}...`;
+          document.getElementById("progress-detail").textContent = `${pct}%`;
+        };
+
+        // Parallel download with max 3 concurrent (avoid browser tab limit)
+        const queue = [...checked];
+        const CONCURRENCY = 3;
+        let active = 0;
+
+        const next = () => {
+          if (queue.length === 0 && active === 0) {
+            // All done
+            setTimeout(() => {
+              modal.style.display = "none";
+              document.getElementById("progress-fill").style.width = "0%";
+            }, 800);
+            showToast(
+              `✓ ${total} APK berhasil dijadwalkan untuk diunduh.`,
+              "success",
+            );
+            return;
+          }
+          while (active < CONCURRENCY && queue.length > 0) {
+            const checkbox = queue.shift();
+            active++;
+            updateProgress();
+
+            const a = document.createElement("a");
+            a.href = checkbox.value;
+            a.download = "";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // Simulate completion after short delay (browser takes over actual DL)
+            setTimeout(() => {
+              done++;
+              active--;
+              updateProgress();
+              next();
+            }, 400);
+          }
+        };
+
+        next();
+      };
+
+      // ── Render APK List ────────────────────────────────────────────────────────
+      const renderApkList = (apks, containerId, countId, template) => {
+        const container = document.getElementById(containerId);
+        const countEl = document.getElementById(countId);
+        container.innerHTML = "";
+        countEl.textContent = `${apks.length} APK`;
+
+        if (apks.length === 0) {
+          container.innerHTML =
+            '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px;">Tidak ada APK di folder ini.</div>';
+          return;
+        }
+
+        apks.forEach((apk, i) => {
+          const clone = template.content.cloneNode(true);
+          const row = clone.querySelector(".apk-row");
+          const link = clone.querySelector(".download-link");
+          const nameEl = clone.querySelector(".apk-name");
+          const sizeEl = clone.querySelector(".apk-size");
+          const checksumEl = clone.querySelector(".apk-checksum");
+          const checkbox = clone.querySelector(".apk-checkbox");
+
+          checkbox.value = apk.url;
+
+          // Auto-check BLM / BMS
+          if (/blm|bms/i.test(apk.name)) checkbox.checked = true;
+
+          checkbox.addEventListener("change", () => {
+            row.classList.toggle("selected", checkbox.checked);
+            updateSelectedCount(containerId);
+          });
+
+          nameEl.textContent = `${i + 1}. ${formatName(apk.name)}`;
+          sizeEl.textContent = apk.sizeLabel || "";
+
+          // Show short checksum for verification
+          if (apk.checksum) {
+            checksumEl.textContent = `MD5: ${apk.checksum.substring(0, 8)}…`;
+            checksumEl.title = `MD5: ${apk.checksum}`;
+          }
+
+          link.href = apk.url;
+          link.setAttribute("download", apk.name);
+
+          if (checkbox.checked) row.classList.add("selected");
+
+          container.appendChild(clone);
+        });
+
+        lucide.createIcons();
+        updateSelectedCount(containerId);
+      };
+
+      // ── Fetch APKs ─────────────────────────────────────────────────────────────
+      const fetchApks = async () => {
+        const loading = document.getElementById("loading");
+        const content = document.getElementById("content");
+        const errorEl = document.getElementById("error-state");
+        const emptyEl = document.getElementById("empty-state");
+        const statsBar = document.getElementById("stats-bar");
+        const template = document.getElementById("apk-template");
+
+        loading.classList.remove("hidden");
+        content.classList.add("hidden");
+        errorEl.classList.add("hidden");
+        emptyEl.classList.add("hidden");
+
+        try {
+          const res = await fetch("/api/apks");
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+
+          if (data.core.length === 0 && data.member.length === 0) {
+            emptyEl.classList.remove("hidden");
+          } else {
+            renderApkList(data.core, "core-list", "core-count", template);
+            renderApkList(data.member, "member-list", "member-count", template);
+          }
+
+          // Update stats
+          document.getElementById("stat-total").textContent =
+            data.total || data.core.length + data.member.length;
+          document.getElementById("stat-core").textContent = data.core.length;
+          document.getElementById("stat-member").textContent =
+            data.member.length;
+          statsBar.style.display = "flex";
+
+          // Footer
+          document.getElementById("footer-stats").textContent =
+            `${data.total || data.core.length + data.member.length} APK tersedia`;
+
+          content.classList.remove("hidden");
+        } catch (err) {
+          console.error(err);
+          errorEl.classList.remove("hidden");
+          content.classList.remove("hidden");
+        } finally {
+          loading.classList.add("hidden");
+        }
+      };
+
+      document.addEventListener("DOMContentLoaded", fetchApks);
+    </script>
+  </body>
+</html>
