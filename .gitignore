@@ -1,0 +1,10 @@
+// ignore node_modules
+node_modules
+.env
+.gitignore
+
+// ignore index.html punya claude
+public/index(punya claude).html
+
+// ignore server.js punya claude
+server(punya claude).js
