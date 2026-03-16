@@ -36,22 +36,35 @@ const getLocalIp = () => {
 
 const localIp = getLocalIp();
 
+// Format ukuran file (KB / MB)
+const formatSize = (bytes) => {
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
 // API endpoint untuk mendapatkan daftar APK
 app.get("/api/apks", (req, res) => {
   try {
     const coreDir = path.join(__dirname, "public", "Core");
     const memberDir = path.join(__dirname, "public", "Member");
-    
+
     // Pastikan folder ada
     if (!fs.existsSync(coreDir)) fs.mkdirSync(coreDir, { recursive: true });
     if (!fs.existsSync(memberDir)) fs.mkdirSync(memberDir, { recursive: true });
 
-    const coreApks = fs.readdirSync(coreDir).filter(file => file.endsWith('.apk'));
-    const memberApks = fs.readdirSync(memberDir).filter(file => file.endsWith('.apk'));
+    // Sort alfabetis supaya urutan konsisten
+    const coreApks = fs.readdirSync(coreDir).filter(file => file.endsWith('.apk')).sort();
+    const memberApks = fs.readdirSync(memberDir).filter(file => file.endsWith('.apk')).sort();
 
     res.json({
-      core: coreApks.map(apk => ({ name: apk, url: `/Core/${apk}` })),
-      member: memberApks.map(apk => ({ name: apk, url: `/Member/${apk}` }))
+      core: coreApks.map(apk => {
+        const size = fs.statSync(path.join(coreDir, apk)).size;
+        return { name: apk, url: `/Core/${apk}`, sizeLabel: formatSize(size) };
+      }),
+      member: memberApks.map(apk => {
+        const size = fs.statSync(path.join(memberDir, apk)).size;
+        return { name: apk, url: `/Member/${apk}`, sizeLabel: formatSize(size) };
+      })
     });
   } catch (err) {
     console.error("Error membaca direktori APK:", err);

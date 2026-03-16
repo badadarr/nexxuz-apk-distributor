@@ -164,7 +164,7 @@
                     </div>
                     <div class="flex flex-col">
                         <span class="font-medium text-slate-200 apk-name">Nama.apk</span>
-                        <span class="text-xs text-slate-500">Ketuk untuk unduh satuan</span>
+                        <span class="text-xs text-slate-500 apk-size">Ketuk untuk unduh satuan</span>
                     </div>
                 </div>
                 <i data-lucide="chevron-right" class="w-5 h-5 text-slate-600"></i>
@@ -226,6 +226,7 @@
                 const clone = template.content.cloneNode(true);
                 const link = clone.querySelector('.download-link');
                 const nameEl = clone.querySelector('.apk-name');
+                const sizeEl = clone.querySelector('.apk-size');
                 const checkbox = clone.querySelector('.apk-checkbox');
                 
                 checkbox.value = apk.url;
@@ -236,8 +237,8 @@
                     checkbox.checked = true;
                 }
 
-                // Add index number logically
                 nameEl.textContent = `${index + 1}. ${formatName(apk.name)}`;
+                sizeEl.textContent = apk.sizeLabel ? apk.sizeLabel : 'Ketuk untuk unduh satuan';
                 link.href = apk.url;
                 
                 container.appendChild(clone);
