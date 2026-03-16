@@ -8,3 +8,7 @@ public/index(punya claude).html
 
 // ignore server.js punya claude
 server(punya claude).js
+
+// ignore public folder apk collection
+public/Core
+public/Member
