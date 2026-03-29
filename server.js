@@ -47,14 +47,17 @@ app.get("/api/apks", (req, res) => {
   try {
     const coreDir = path.join(__dirname, "public", "Core");
     const memberDir = path.join(__dirname, "public", "Member");
+    const rndDir = path.join(__dirname, "public", "RND");
 
     // Pastikan folder ada
     if (!fs.existsSync(coreDir)) fs.mkdirSync(coreDir, { recursive: true });
     if (!fs.existsSync(memberDir)) fs.mkdirSync(memberDir, { recursive: true });
+    if (!fs.existsSync(rndDir)) fs.mkdirSync(rndDir, { recursive: true });
 
     // Sort alfabetis supaya urutan konsisten
     const coreApks = fs.readdirSync(coreDir).filter(file => file.endsWith('.apk')).sort();
     const memberApks = fs.readdirSync(memberDir).filter(file => file.endsWith('.apk')).sort();
+    const rndApks = fs.readdirSync(rndDir).filter(file => file.endsWith('.apk')).sort();
 
     res.json({
       core: coreApks.map(apk => {
@@ -64,6 +67,10 @@ app.get("/api/apks", (req, res) => {
       member: memberApks.map(apk => {
         const size = fs.statSync(path.join(memberDir, apk)).size;
         return { name: apk, url: `/Member/${apk}`, sizeLabel: formatSize(size) };
+      }),
+      rnd: rndApks.map(apk => {
+        const size = fs.statSync(path.join(rndDir, apk)).size;
+        return { name: apk, url: `/RND/${apk}`, sizeLabel: formatSize(size) };
       })
     });
   } catch (err) {
