@@ -5,7 +5,7 @@ const fs = require("fs");
 const cookieParser = require("cookie-parser");
 
 const app = express();
-const PORT = 3000;
+const PORT = 3002;
 
 // ─────────────────────────────────────────
 //  CRASH PREVENTION
