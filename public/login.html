@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Nexxuz APK Distributor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ["Inter", "sans-serif"] },
+                    colors: {
+                        brand: {
+                            50: "#eff6ff",
+                            100: "#dbeafe",
+                            400: "#60a5fa",
+                            500: "#3b82f6",
+                            600: "#2563eb",
+                            900: "#1e3a8a",
+                        },
+                    },
+                },
+            },
+        };
+    </script>
+
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+        .glass-card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        
+        .input-field {
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            color: white;
+            transition: all 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+    </style>
+</head>
+<body class="antialiased flex items-center justify-center p-4">
+    
+    <div class="w-full max-w-sm space-y-8">
+        <header class="text-center space-y-2">
+            <div class="inline-flex items-center justify-center p-4 bg-brand-600/20 rounded-full mb-2 text-brand-400">
+                <i data-lucide="shield" class="w-10 h-10"></i>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight text-white">Security Check</h1>
+            <p class="text-slate-400 text-sm">Masuk untuk mengakses sistem APK Distributor</p>
+        </header>
+
+        <div class="glass-card rounded-3xl p-8">
+            <form id="login-form" autocomplete="off" class="space-y-5">
+                <div id="error-message" class="hidden bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-2.5 rounded-lg flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                    <span>Username atau Password salah</span>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1.5" for="username">Username</label>
+                        <div class="relative">
+                            <i data-lucide="user" class="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" id="username" name="username" required placeholder="Masukkan username" 
+                                class="input-field w-full pl-11 pr-4 py-3 rounded-xl text-sm" />
+                        </div>
+                    </div>
+                
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1.5" for="password">Password</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                            <input type="password" id="password" name="password" required placeholder="Masukkan password" 
+                                class="input-field w-full pl-11 pr-4 py-3 rounded-xl text-sm" />
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-semibold py-3 rounded-xl transition-all flex justify-center items-center gap-2 mt-4">
+                    <span id="btn-text">Masuk Sekarang</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                </button>
+            </form>
+        </div>
+        
+        <footer class="text-center text-slate-600 text-xs">
+            Nexxuz APK Distributor &copy; 2026
+        </footer>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const usernameInput = document.getElementById('username').value;
+            const passwordInput = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-message');
+            
+            // Loading state
+            const origHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-5 h-5 animate-spin"></i><span>Memverifikasi...</span>';
+            lucide.createIcons();
+            errorMsg.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: usernameInput, password: passwordInput })
+                });
+
+                if (res.ok) {
+                    btn.classList.replace('bg-brand-600', 'bg-emerald-600');
+                    btn.classList.replace('hover:bg-brand-500', 'bg-emerald-600');
+                    btn.innerHTML = '<i data-lucide="check-circle" class="w-5 h-5"></i><span>Berhasil! Mengalihkan...</span>';
+                    lucide.createIcons();
+                    
+                    setTimeout(() => { window.location.href = '/'; }, 800);
+                } else {
+                    const data = await res.json();
+                    errorMsg.querySelector('span').textContent = data.error || 'Username atau password salah';
+                    errorMsg.classList.remove('hidden');
+                    
+                    // Reset state
+                    btn.disabled = false;
+                    btn.innerHTML = origHTML;
+                    lucide.createIcons();
+                }
+            } catch (err) {
+                // Reset state on network error
+                errorMsg.querySelector('span').textContent = 'Kesalahan jaringan. Coba lagi.';
+                errorMsg.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = origHTML;
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>

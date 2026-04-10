@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const os = require("os");
 const fs = require("fs");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 const PORT = 3000;
@@ -132,9 +133,54 @@ const formatSize = (bytes) => {
 };
 
 // ─────────────────────────────────────────
-//  EXPRESS MIDDLEWARE
+//  EXPRESS MIDDLEWARE & AUTHENTICATION
 // ─────────────────────────────────────────
+app.use(express.json());
+app.use(cookieParser());
+
+const AUTH_USER = process.env.AUTH_USER || "nexxuz";
+const AUTH_PASS = process.env.AUTH_PASS || "nexxuz123";
+
+// API Auth
+app.post("/api/login", (req, res) => {
+  const { username, password } = req.body;
+  if (username === AUTH_USER && password === AUTH_PASS) {
+      res.cookie("nexxuz_auth", "authenticated", { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 7 }); // 7 hari
+      return res.json({ success: true });
+  }
+  return res.status(401).json({ error: "Username atau Password salah" });
+});
+
+app.get("/logout", (req, res) => {
+  res.clearCookie("nexxuz_auth");
+  res.redirect("/login");
+});
+
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+const authMiddleware = (req, res, next) => {
+  if (req.path === '/login' || req.path === '/api/login' || req.path === '/login.html') {
+      return next();
+  }
+
+  if (req.cookies.nexxuz_auth === 'authenticated') {
+      return next();
+  }
+
+  // Jika request mengarah ke API atau download, kembalikan response 401
+  if (req.path.startsWith('/api') || req.path === '/download') {
+      return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  res.redirect('/login');
+};
+
+app.use(authMiddleware);
+
 app.use(express.static(path.join(__dirname, "public")));
+
 
 // ─────────────────────────────────────────
 //  ROUTES
