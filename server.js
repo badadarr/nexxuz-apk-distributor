@@ -161,7 +161,12 @@ app.get("/login", (req, res) => {
 });
 
 const authMiddleware = (req, res, next) => {
-  if (req.path === '/login' || req.path === '/api/login' || req.path === '/login.html') {
+  if (
+      req.path === '/login' || 
+      req.path === '/api/login' || 
+      req.path === '/login.html' || 
+      req.path.startsWith('/assets/')
+  ) {
       return next();
   }
 
