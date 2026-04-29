@@ -3,6 +3,7 @@ const path = require("path");
 const os = require("os");
 const fs = require("fs");
 const cookieParser = require("cookie-parser");
+const multer = require("multer");
 
 const app = express();
 const PORT = 3002;
@@ -137,6 +138,30 @@ const formatSize = (bytes) => {
 // ─────────────────────────────────────────
 app.use(express.json());
 app.use(cookieParser());
+
+// Multer Storage Config
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const category = req.body.category;
+    const dirs = {
+      core: path.join(__dirname, "public", "Core"),
+      member: path.join(__dirname, "public", "Member"),
+      rnd: path.join(__dirname, "public", "RND"),
+    };
+    if (dirs[category]) {
+      if (!fs.existsSync(dirs[category])) {
+        fs.mkdirSync(dirs[category], { recursive: true });
+      }
+      cb(null, dirs[category]);
+    } else {
+      cb(new Error("Invalid category"), false);
+    }
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  }
+});
+const upload = multer({ storage });
 
 const AUTH_USER = process.env.AUTH_USER || "nexxuz";
 const AUTH_PASS = process.env.AUTH_PASS || "nexxuz123";
@@ -344,6 +369,52 @@ app.get("/api/queue-all", (req, res) => {
     };
   }
   res.json({ queues: result, maxConcurrent: MAX_CONCURRENT_PER_FILE });
+});
+
+// 6. API: Upload APK
+app.post("/api/upload", upload.array("apk", 20), (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: "No files uploaded" });
+  }
+  req.files.forEach(file => {
+      console.log(`\x1b[32m[UPLOAD]\x1b[0m File ${file.originalname} uploaded to ${req.body.category}`);
+  });
+  res.json({ success: true, message: `${req.files.length} file(s) uploaded successfully` });
+});
+
+// 7. API: Delete APK
+app.delete("/api/apks", (req, res) => {
+  const fileUrl = req.query.url;
+  if (!fileUrl) return res.status(400).json({ error: "URL tidak valid" });
+  
+  const parts = fileUrl.split('/').filter(Boolean);
+  if (parts.length !== 2) return res.status(400).json({ error: "Path tidak valid" });
+  
+  const folder = parts[0];
+  const filename = parts[1];
+  
+  const dirs = {
+    "Core": path.join(__dirname, "public", "Core"),
+    "Member": path.join(__dirname, "public", "Member"),
+    "RND": path.join(__dirname, "public", "RND"),
+  };
+  
+  if (!dirs[folder]) return res.status(400).json({ error: "Kategori tidak valid" });
+  
+  const filePath = path.join(dirs[folder], filename);
+  
+  if (fs.existsSync(filePath)) {
+    try {
+      fs.unlinkSync(filePath);
+      console.log(`\x1b[31m[DELETE]\x1b[0m File ${filename} dihapus dari ${folder}`);
+      res.json({ success: true });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Gagal menghapus file" });
+    }
+  } else {
+    res.status(404).json({ error: "File tidak ditemukan" });
+  }
 });
 
 // Fallback index html

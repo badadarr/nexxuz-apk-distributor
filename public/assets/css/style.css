@@ -61,6 +61,9 @@ body {
 .gap-2 { gap: 0.5rem; }
 .gap-3 { gap: 0.75rem; }
 .gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+.gap-10 { gap: 2.5rem; }
 .w-full { width: 100%; }
 .text-xs { font-size: 0.75rem; line-height: 1rem; }
 .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
@@ -177,9 +180,8 @@ body {
 .checkbox-custom { width: 1.25rem; height: 1.25rem; border-radius: 0.25rem; border: 1px solid var(--slate-600); background: var(--slate-700); cursor: pointer; accent-color: var(--brand-500); }
 .select-all-label { font-size: 0.875rem; color: var(--slate-300); font-weight: 500; cursor: pointer; }
 
-.package-list { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
-.apk-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 0.75rem; background-color: var(--slate-800); border: 1px solid rgba(51, 65, 85, 0.5); }
-@media (min-width: 1024px) { .apk-item { padding: 1rem; } }
+.package-list { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+.apk-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 0.75rem; background-color: var(--slate-800); border: 1px solid rgba(51, 65, 85, 0.5); }
 
 .apk-icon-wrap { background-color: var(--slate-900); padding: 0.625rem; border-radius: 0.5rem; color: var(--brand-400); flex-shrink: 0; }
 .apk-info { flex: 1; min-width: 0; }
@@ -209,6 +211,9 @@ body {
 .cancel-btn { min-width: 36px; background-color: var(--slate-700); color: var(--slate-400); padding: 0.5rem; border-radius: 0.5rem; transition: background 0.2s, color 0.2s; display: flex; align-items: center; justify-content: center; }
 .cancel-btn:hover { background-color: rgba(239, 68, 68, 0.2); color: var(--red-400); }
 
+.delete-btn { display: flex; align-items: center; justify-content: center; padding: 0.5rem; border-radius: 0.5rem; background-color: rgba(239, 68, 68, 0.1); color: var(--red-400); transition: all 0.2s ease; border: 1px solid rgba(239, 68, 68, 0.2); }
+.delete-btn:hover { background-color: rgba(239, 68, 68, 0.2); color: var(--red-500); }
+
 /* Shimmer & Pulse */
 .shimmer { background-image: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
@@ -221,6 +226,8 @@ body {
 .empty-state { background-color: rgba(30, 41, 59, 0.5); }
 .btn-outline { margin-top: 1rem; padding: 0.5rem 1rem; background-color: rgba(255, 255, 255, 0.1); border-radius: 0.5rem; font-size: 0.875rem; transition: background 0.2s; }
 .btn-outline:hover { background-color: rgba(255, 255, 255, 0.2); }
+.btn-upload { background: rgba(51, 65, 85, 0.5); border: 1px solid var(--slate-600); color: white; transition: background 0.2s; margin: 0; }
+.btn-upload:hover { background: rgba(51, 65, 85, 0.8); }
 .code-tag { background-color: rgba(0, 0, 0, 0.3); padding: 0.125rem 0.25rem; border-radius: 0.25rem; color: var(--brand-300); font-family: monospace; }
 .animate-spin { animation: spin 1s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
@@ -228,3 +235,5 @@ body {
 /* Skeleton */
 .skeleton-box { height: 1.5rem; background-color: var(--slate-700); border-radius: 0.25rem; width: 33.33%; margin-bottom: 1rem; }
 .skeleton-item { height: 4rem; background-color: rgba(51, 65, 85, 0.8); border-radius: 0.75rem; margin-bottom: 0.75rem; }
+
+.section-card { margin-bottom: 2.5rem; }

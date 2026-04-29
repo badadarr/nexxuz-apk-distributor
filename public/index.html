@@ -54,10 +54,10 @@
         </div>
 
         <!-- Content Area -->
-        <div id="content" class="flex-col gap-6 hidden">
+        <div id="content" class="flex-col gap-10 hidden">
             
             <!-- Core Package -->
-            <section class="glass-card">
+            <section class="glass-card section-card">
                 <div class="package-header core-header">
                     <div>
                         <h2 class="package-title core-title">
@@ -65,11 +65,16 @@
                         </h2>
                         <p class="package-sub">Khusus untuk 2 Device Utama</p>
                     </div>
-                    <div class="flex-col items-center gap-2" style="align-items:flex-end">
+                    <div class="flex flex-col items-center gap-4" style="align-items:flex-end">
                         <div class="package-count core-count" id="core-count">0 APK</div>
-                        <button onclick="downloadSelected('core-list')" class="btn-small btn-core">
-                            <i data-lucide="download-cloud" style="width:0.875rem; height:0.875rem"></i> Download Terpilih
-                        </button>
+                        <div class="flex items-center gap-4">
+                            <button onclick="triggerUpload('core')" class="btn-small btn-upload">
+                                <i data-lucide="upload" style="width:0.875rem; height:0.875rem"></i> Upload
+                            </button>
+                            <button onclick="downloadSelected('core-list')" class="btn-small btn-core">
+                                <i data-lucide="download-cloud" style="width:0.875rem; height:0.875rem"></i> Download Terpilih
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="select-all-bar">
@@ -80,7 +85,7 @@
             </section>
 
             <!-- Member Package -->
-            <section class="glass-card">
+            <section class="glass-card section-card">
                 <div class="package-header member-header">
                     <div>
                         <h2 class="package-title member-title">
@@ -88,11 +93,16 @@
                         </h2>
                         <p class="package-sub">Untuk 11 Device Anggota</p>
                     </div>
-                    <div class="flex-col items-center gap-2" style="align-items:flex-end">
+                    <div class="flex flex-col items-center gap-4" style="align-items:flex-end">
                         <div class="package-count member-count" id="member-count">0 APK</div>
-                        <button onclick="downloadSelected('member-list')" class="btn-small btn-member">
-                            <i data-lucide="download-cloud" style="width:0.875rem; height:0.875rem"></i> Download Terpilih
-                        </button>
+                        <div class="flex items-center gap-4">
+                            <button onclick="triggerUpload('member')" class="btn-small btn-upload">
+                                <i data-lucide="upload" style="width:0.875rem; height:0.875rem"></i> Upload
+                            </button>
+                            <button onclick="downloadSelected('member-list')" class="btn-small btn-member">
+                                <i data-lucide="download-cloud" style="width:0.875rem; height:0.875rem"></i> Download Terpilih
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="select-all-bar">
@@ -103,7 +113,7 @@
             </section>
 
             <!-- RND Package -->
-            <section class="glass-card">
+            <section class="glass-card section-card">
                 <div class="package-header rnd-header">
                     <div>
                         <h2 class="package-title rnd-title">
@@ -111,11 +121,16 @@
                         </h2>
                         <p class="package-sub">Khusus build eksperimen dan pengujian</p>
                     </div>
-                    <div class="flex-col items-center gap-2" style="align-items:flex-end">
+                    <div class="flex flex-col items-center gap-4" style="align-items:flex-end">
                         <div class="package-count rnd-count" id="rnd-count">0 APK</div>
-                        <button onclick="downloadSelected('rnd-list')" class="btn-small btn-rnd">
-                            <i data-lucide="download-cloud" style="width:0.875rem; height:0.875rem"></i> Download Terpilih
-                        </button>
+                        <div class="flex items-center gap-4">
+                            <button onclick="triggerUpload('rnd')" class="btn-small btn-upload">
+                                <i data-lucide="upload" style="width:0.875rem; height:0.875rem"></i> Upload
+                            </button>
+                            <button onclick="downloadSelected('rnd-list')" class="btn-small btn-rnd">
+                                <i data-lucide="download-cloud" style="width:0.875rem; height:0.875rem"></i> Download Terpilih
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="select-all-bar">
@@ -150,6 +165,9 @@
             <p>Nexxuz APK Distributor &copy; 2026</p>
         </footer>
     </div>
+
+    <!-- Hidden File Input for Uploading -->
+    <input type="file" id="apk-upload-input" accept=".apk" multiple class="hidden" onchange="handleApkUpload(event)" />
 
     <script>
         lucide.createIcons();
@@ -487,6 +505,9 @@
                         <button onclick="onCancelClick('${apk.url}')" class="cancel-btn hidden" title="Batalkan Unduhan">
                             <i data-lucide="x" style="width:1rem; height:1rem"></i>
                         </button>
+                        <button class="delete-btn" onclick="onDeleteClick('${apk.url}', '${apk.name}')" title="Hapus APK">
+                            <i data-lucide="trash-2" style="width:1rem; height:1rem"></i>
+                        </button>
                         <button class="dl-btn state-idle" onclick="onDownloadClick('${apk.url}', '${apk.name}')">
                             <i data-lucide="download" class="dl-btn-icon" style="width:1rem; height:1rem"></i>
                             <span class="dl-btn-label">Download</span>
@@ -496,6 +517,26 @@
                 container.appendChild(el);
             });
             lucide.createIcons();
+        };
+
+        window.onDeleteClick = async (url, name) => {
+            if (!confirm(`Yakin ingin menghapus ${name}? File yang dihapus tidak bisa dikembalikan.`)) {
+                return;
+            }
+            try {
+                const res = await fetch(`/api/apks?url=${encodeURIComponent(url)}`, {
+                    method: 'DELETE'
+                });
+                const data = await res.json();
+                if (data.success) {
+                    fetchApks();
+                } else {
+                    alert(data.error || 'Gagal menghapus file');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Terjadi kesalahan saat menghapus file');
+            }
         };
 
         const onDownloadClick = (url, name) => {
@@ -536,6 +577,84 @@
                 errorState.classList.remove("hidden");
             } finally {
                 loading.classList.add("hidden");
+            }
+        };
+
+        // Upload functionality
+        let currentUploadCategory = '';
+
+        const triggerUpload = (category) => {
+            currentUploadCategory = category;
+            document.getElementById('apk-upload-input').click();
+        };
+
+        const handleApkUpload = async (event) => {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            const formData = new FormData();
+            formData.append('category', currentUploadCategory);
+
+            let validFilesCount = 0;
+            let fileNames = [];
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].name.endsWith('.apk')) {
+                    formData.append('apk', files[i]);
+                    fileNames.push(files[i].name);
+                    validFilesCount++;
+                }
+            }
+
+            if (validFilesCount === 0) {
+                alert('Tidak ada file APK valid yang dipilih!');
+                event.target.value = '';
+                return;
+            }
+
+            // Tampilkan overlay loading
+            const overlay = document.createElement('div');
+            overlay.className = 'upload-overlay';
+            overlay.style.position = 'fixed';
+            overlay.style.inset = '0';
+            overlay.style.backgroundColor = 'rgba(15, 23, 42, 0.8)';
+            overlay.style.zIndex = '9999';
+            overlay.style.display = 'flex';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.backdropFilter = 'blur(4px)';
+            
+            const displayNames = fileNames.length > 1 
+                ? `${fileNames[0]} dan ${fileNames.length - 1} lainnya` 
+                : fileNames[0];
+
+            overlay.innerHTML = `
+                <div class="glass-card" style="padding: 2rem; text-align: center; max-width: 20rem; width: 90%;">
+                    <i data-lucide="loader" class="animate-spin text-brand-400" style="width:3rem; height:3rem; margin:0 auto 1rem auto; display:block;"></i>
+                    <p class="font-medium text-white mb-2">Mengupload ${validFilesCount} APK...</p>
+                    <p class="text-xs text-slate-400 truncate">${displayNames}</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            lucide.createIcons();
+
+            try {
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    fetchApks();
+                } else {
+                    alert(data.error || 'Gagal mengupload APK');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Terjadi kesalahan saat mengupload APK');
+            } finally {
+                document.body.removeChild(overlay);
+                event.target.value = ''; // Reset input for next time
             }
         };
 
